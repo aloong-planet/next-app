@@ -1,3 +1,6 @@
 {
+  "rules": {
+    "react/no-string-refs": "error"
+  },
   "extends": ["next/core-web-vitals", "next/typescript"]
 }
