@@ -1,8 +1,8 @@
 // components/chat/MessageList.tsx
-import React, { Suspense } from 'react';
-import { Message } from '@/stores/chatStore';
-import { MarkdownPreview } from './MarkdownPreview';
-import { cn } from '@/lib/utils';
+import React, {Suspense} from 'react';
+import {Message} from '@/stores/chatStore';
+import {MarkdownPreview} from './MarkdownPreview';
+import {cn} from '@/lib/utils';
 
 interface MessageListProps {
     messages: Message[];
@@ -17,10 +17,10 @@ class MessageErrorBoundary extends React.Component<{
     hasError: boolean;
     error?: Error;
 }> {
-    state = { hasError: false, error: undefined };
+    state = {hasError: false, error: undefined};
 
     static getDerivedStateFromError(error: Error) {
-        return { hasError: true, error };
+        return {hasError: true, error};
     }
 
     componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
@@ -28,7 +28,7 @@ class MessageErrorBoundary extends React.Component<{
     }
 
     reset = () => {
-        this.setState({ hasError: false, error: undefined });
+        this.setState({hasError: false, error: undefined});
     };
 
     render() {
@@ -52,8 +52,45 @@ class MessageErrorBoundary extends React.Component<{
     }
 }
 
+
+const CopyMessageButton = ({content}: { content: string }) => {
+    const [copied, setCopied] = React.useState(false);
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(content)
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1000);
+        } catch (error) {
+            console.error('Failed to copy message:', error);
+        }
+    };
+
+    return (
+        <button
+            onClick={handleCopy}
+            className={cn(
+                "absolute bottom-0 right-2", // Position at bottom right
+                "translate-y-1/2", // move element down by half of its height
+                "px-2 py-1",
+                "text-xs rounded-md",
+                "bg-white/80 dark:bg-gray-700/80",
+                "backdrop-blur-sm shadow-sm",
+                "border border-gray-200 dark:border-gray-600",
+                "text-gray-600 dark:text-gray-300",
+                "hover:bg-gray-100 dark:hover:bg-gray-700",
+                "transition-all duration-200",
+                "opacity-0 group-hover:opacity-100", // Show on parent hover
+                copied && "text-green-600 dark:text-green-400"
+            )}
+        >
+            {copied ? 'Copied' : 'Copy'}
+        </button>
+    );
+}
+
 // Message item component
-const MessageItem = React.memo<{ message: Message }>(({ message }) => {
+const MessageItem = React.memo<{ message: Message }>(({message}) => {
     return (
         <div
             className={cn(
@@ -63,8 +100,9 @@ const MessageItem = React.memo<{ message: Message }>(({ message }) => {
         >
             <div
                 className={cn(
-                    "px-4 py-1 rounded-lg",
+                    "relative px-4 py-1 rounded-lg",
                     "max-w-[95%] w-fit",
+                    "group", // Group hover effect
                     message.role === 'user'
                         ? 'bg-sky-100 dark:bg-sky-900/30 shadow-md dark:shadow-sky-900/40 border border-black/10 dark:border-sky-800'
                         : 'bg-gray-50 dark:bg-gray-800 shadow-md dark:shadow-gray-900/40 border border-black/10 dark:border-gray-700', // Added border
@@ -78,8 +116,8 @@ const MessageItem = React.memo<{ message: Message }>(({ message }) => {
                     <Suspense
                         fallback={
                             <div className="animate-pulse">
-                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24" />
-                                <div className="mt-2 h-4 bg-gray-200 dark:bg-gray-700 rounded w-full" />
+                                <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24"/>
+                                <div className="mt-2 h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"/>
                             </div>
                         }
                     >
@@ -91,6 +129,7 @@ const MessageItem = React.memo<{ message: Message }>(({ message }) => {
                         </div>
                     </Suspense>
                 </MessageErrorBoundary>
+                <CopyMessageButton content={message.content}/>
             </div>
         </div>
     );
@@ -98,8 +137,9 @@ const MessageItem = React.memo<{ message: Message }>(({ message }) => {
 
 MessageItem.displayName = 'MessageItem';
 
+
 // Main MessageList component
-export const MessageList = React.memo<MessageListProps>(({ messages }) => {
+export const MessageList = React.memo<MessageListProps>(({messages}) => {
     if (messages.length === 0) {
         return (
             <div className="h-full flex items-center justify-center text-gray-500">
@@ -111,7 +151,7 @@ export const MessageList = React.memo<MessageListProps>(({ messages }) => {
     return (
         <div className="space-y-4 min-h-full w-full">
             {messages.map((message) => (
-                <MessageItem key={message.id} message={message} />
+                <MessageItem key={message.id} message={message}/>
             ))}
         </div>
     );
