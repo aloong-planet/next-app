@@ -28,26 +28,28 @@ interface ChatListItem {
     updatedAt: Date;
 }
 
-// Store interface
-interface ChatStore {
+interface ChatStoreState {
     chatList: ChatListItem[];
     currentChatId: string | null;
     isLoading: boolean;
     initialized: boolean;
+}
 
-    // Store actions
+interface ChatStoreActions {
     initialize: () => Promise<void>;
     createChat: () => Promise<string>;
     setCurrentChat: (chatId: string) => void;
     loadChat: (chatId: string) => Promise<Chat | null>;
-    addMessage: (chatId: string, message: Omit<Message, 'id' | 'timestamp' | 'rendered'>) => Promise<void>;
-    updateChatMessage: (chatId: string, messageId: string, content: string) => Promise<void>;
-    setIsLoading: (loading: boolean) => void;
-    appendToLastMessage: (chatId: string, content: string) => Promise<void>;
     updateChatTitle: (chatId: string, title: string) => Promise<void>;
     deleteChat: (chatId: string) => Promise<void>;
+    setIsLoading: (loading: boolean) => void;
+    updateChatMessage: (chatId: string, messageId: string, content: string) => Promise<void>;
+    addMessage: (chatId: string, message: Omit<Message, 'id' | 'timestamp' | 'rendered'>) => Promise<void>;
+    appendToLastMessage: (chatId: string, content: string) => Promise<void>;
     markMessageAsRendered: (chatId: string, messageId: string) => Promise<void>;
 }
+
+type ChatStore = ChatStoreState & ChatStoreActions;
 
 // Storage constants
 const CHAT_PREFIX = 'chat:';
